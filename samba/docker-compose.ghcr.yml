@@ -1,0 +1,76 @@
+version: '3'
+ 
+# docker-compose.yml example for https://github.com/ServerContainers/samba
+
+services:
+  samba:
+    build: .
+    image: ghcr.io/servercontainers/samba
+    cap_add:
+      - CAP_NET_ADMIN
+      - SYS_ADMIN
+    # ports:
+    #   - "137:137/udp"
+    #   - "138:138/udp"
+    #   - "139:139/tcp"
+    #   - "445:445/tcp"
+    # note that this network_mode makes it super easy (especially for zeroconf) but is not as safe as exposing ports directly
+    # more about that here: https://book.hacktricks.xyz/linux-hardening/privilege-escalation/docker-security/docker-breakout-privilege-escalation#hostnetwork
+    network_mode: host
+    # uncomment to solve bug: https://github.com/ServerContainers/samba/issues/50 - wsdd2 only - not needed for samba
+    #cap_add:
+    #  - CAP_NET_ADMIN
+    environment:
+      MODEL: 'TimeCapsule'
+      AVAHI_NAME: StorageServer
+
+      SAMBA_CONF_LOG_LEVEL: 5
+
+      # uncomment to disable optional services
+      #WSDD2_DISABLE: 1
+      #AVAHI_DISABLE: 1
+
+      GROUP_family: 1500
+
+      ACCOUNT_alice: alipass
+      UID_alice: 1000
+      GROUPS_alice: family
+
+      ACCOUNT_bob: bobpass
+      UID_bob: 1001
+      GROUPS_bob: family
+
+      # example for hashed password (user: foo | password: bar) - generated using create-hash.sh script.
+      ACCOUNT_foo: "foo:1000:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:86C156FC198B358CCCF6278D8BD49B6A:[U          ]:LCT-61B0859A:"
+      UID_foo: 1002
+      GROUPS_foo: family
+
+      SAMBA_VOLUME_CONFIG_shared_home: "[Home]; path=/shares/homes/%U; valid users = alice, bob, foo; guest ok = no; read only = no; browseable = yes"
+
+      SAMBA_VOLUME_CONFIG_aliceonly: "[Alice Share]; path=/shares/alice; valid users = alice; guest ok = no; read only = no; browseable = yes; writeable = yes; write list = alice"
+      SAMBA_VOLUME_CONFIG_alicehidden: "[Alice Hidden Share]; path=/shares/alice-hidden; valid users = alice; guest ok = no; read only = no; browseable = no"
+
+      SAMBA_VOLUME_CONFIG_bobonly: "[Bob Share]; path=/shares/bob; valid users = bob; guest ok = no; read only = no; browseable = yes"
+      
+      SAMBA_VOLUME_CONFIG_public: "[Public]; path=/shares/public; valid users = alice, bob, foo; guest ok = no; read only = no; browseable = yes; force group = family"
+      SAMBA_VOLUME_CONFIG_public_ro: "[Public ReadOnly]; path=/shares/public; guest ok = yes; read only = yes; browseable = yes; force group = family"
+      
+      SAMBA_VOLUME_CONFIG_timemachine: "[TimeMachine]; path=/shares/timemachine/%U; valid users = alice, bob, foo; guest ok = no; read only = no; browseable = yes; fruit:time machine = yes; fruit:time machine max size = 500G"
+    volumes:
+      - /etc/avahi/services/:/external/avahi
+      
+      # avoid loops when mounting folders to /shares (I'd recommend explicit mapping for each share)
+      - ./shares/alice:/shares/alice
+      - ./shares/alice-hidden:/shares/alice-hidden
+      - ./shares/bob:/shares/bob
+      - ./shares/public:/shares/public
+      - ./shares/homes:/shares/homes
+      - ./shares/timemachine:/shares/timemachine
+
+  samba-client:
+    image: busybox
+    cap_add:
+      - SYS_ADMIN
+    # volumes:
+    #   - nfs-volume:/mnt
+    command: tail -f /dev/null

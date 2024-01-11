@@ -1,0 +1,20 @@
+version: '3'
+services:
+  db:
+    image: postgres:15.3
+    restart: always
+    volumes:
+      - ./storage/db:/var/lib/postgresql/data # persist database in local storage
+      - ./db-init-scripts:/docker-entrypoint-initdb.d # run initialization scripts
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: db # Created database
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - 8080:8080

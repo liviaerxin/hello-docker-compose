@@ -1,0 +1,48 @@
+version: '3'
+services:
+  nfs-client:
+    image: busybox
+    container_name: nfs-client
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - nfs-volume:/mnt
+    command: tail -f /dev/null
+    depends_on:
+      - nfs
+    networks:
+      backend:
+
+  nfs:
+    image: gists/nfs-server
+    container_name: nfs
+    cap_add:
+      - SYS_ADMIN
+      - SETPCAP  
+    ports:
+      - 2049:2049
+    environment:
+      NFS_DIR: /nfs-share
+      NFS_OPTION: "fsid=0,rw,sync,insecure,no_root_squash,no_subtree_check,nohide"
+    volumes:
+      - mnt:/nfs-share
+    networks:
+      backend:
+        ipv4_address: 172.28.0.20
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+volumes:
+  mnt:
+  nfs-volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=172.28.0.20,nfsvers=4,rw"
+      device: ":/"

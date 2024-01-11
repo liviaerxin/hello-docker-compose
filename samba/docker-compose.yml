@@ -1,0 +1,54 @@
+version: "3"
+
+# Inspired by https://github.com/dperson/samba/blob/master/docker-compose.yml
+
+services:
+  samba:
+    image: dperson/samba
+    privileged: true
+    environment:
+      TZ: "EST5EDT"
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139/tcp"
+      - "445:445/tcp"
+    volumes:
+      - mnt:/mnt:z
+    command: '-s "Mount;/mnt;yes;no;yes" -u "bob;bobspasswd" -p'
+    # networks:
+    #   default:
+    #     ipv4_address: 172.28.0.20
+
+  samba-client:
+    image: busybox
+    restart: on-failure
+    volumes:
+      - samba-volume:/smb_share
+    # tty: true
+    command: sleep infinity
+    depends_on:
+      - samba
+
+    # networks:
+    #   default:
+    #     ipv4_address: 172.28.0.21
+        
+# networks:
+#   default:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 172.28.0.0/16
+#           gateway: 172.28.0.1
+
+volumes:
+  mnt:
+  samba-volume:
+    driver: local
+    driver_opts:
+      type: cifs
+      # device: "//172.28.0.20/Mount"
+      # o: "username=bob,password=bobspasswd"
+      device: "//localhost/Mount"
+      o: "addr=localhost,username=bob,password=bobspasswd"

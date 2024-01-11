@@ -1,0 +1,55 @@
+# docker inspect --format "{{json .State.Health }}" db | jq
+# That service `app` will start after `pg-db`, `mysql-db` and `redis` start successfully.
+version: '3'
+services:
+  app:
+    image: python:3.10-slim
+    ports:
+      - 9000:9000
+    command: ["python3", "-m", "http.server", "9000"]
+    depends_on:
+      pg-db:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  pg-db:
+    image: postgres:15.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: db # create database
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-db:
+    image: mysql:8.2.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: 123456
+      MYSQL_DATABASE: db
+    ports:
+      - 3306:3306 # Only for testing purposes outside docker
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
