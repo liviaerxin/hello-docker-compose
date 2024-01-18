@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - 80:80
+      - 8080:8080 # Web UI Port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.domain.entrypoints=web
+      - traefik.http.routers.domain.rule=Path(`/`)
+      - traefik.http.routers.domain.service=noop@internal
+      - traefik.http.routers.domain.middlewares=to-frontend@docker
+      - traefik.http.middlewares.to-frontend.redirectregex.permanent=true
+      - traefik.http.middlewares.to-frontend.redirectregex.regex=^http://([^/]+)/?$ # http://127.0.0.1
+      - traefik.http.middlewares.to-frontend.redirectregex.replacement=http://$${1}/app1 # http://127.0.0.1/mtr # http://127.0.0.1 -> http://127.0.0.1/mtr
+
+  app1:
+    image:  traefik/whoami:v1.10
+    hostname: app1.com
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.routers.frontend.rule=PathPrefix(`/app1`) # match `http://127.0.0.1/mtr` -> ingress `/mtr`
