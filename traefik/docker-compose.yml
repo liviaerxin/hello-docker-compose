@@ -43,3 +43,17 @@ services:
       - traefik.http.routers.bar.rule=PathPrefix(`/bar`)
       - traefik.http.routers.bar.middlewares=bar-strip-prefix@docker
       - traefik.http.middlewares.bar-strip-prefix.stripprefix.prefixes=/bar
+
+  bar12345:
+    image:  traefik/whoami:v1.10
+    hostname: bar12345.com
+    environment:
+      WHOAMI_PORT_NUMBER: 12345
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bar12345-router.entrypoints=web
+      - traefik.http.routers.bar12345-router.rule=PathPrefix(`/bar12345`)
+      # Tell Traefik that `myrouter` uses `myservice` as its service
+      - traefik.http.routers.bar12345-router.service=bar12345-service
+      # Tell Traefik to use the port 12345 to connect to `myservice` service
+      - traefik.http.services.bar12345-service.loadbalancer.server.port=12345
