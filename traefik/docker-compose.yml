@@ -57,3 +57,26 @@ services:
       - traefik.http.routers.bar12345-router.service=bar12345-service
       # Tell Traefik to use the port 12345 to connect to `myservice` service
       - traefik.http.services.bar12345-service.loadbalancer.server.port=12345
+
+  web2ports:
+    image: python:3.10
+    ports:
+      - 8001:8001
+      - 8002:8002
+    working_dir: /app
+    volumes:
+      - ./server_whoami.py:/app/server_whoami.py
+    command: >
+      sh -c "python3 server_whoami.py --port 8001 
+      & python3 server_whoami.py --port 8002"
+    labels:
+      - traefik.enable=true
+      # Specify more than one router and service per container
+      - traefik.http.routers.a-router.entrypoints=web
+      - traefik.http.routers.a-router.rule=PathPrefix(`/web2ports-a`)
+      - traefik.http.routers.a-router.service=a-service
+      - traefik.http.services.a-service.loadbalancer.server.port=8001
+      - traefik.http.routers.b-router.entrypoints=web
+      - traefik.http.routers.b-router.rule=PathPrefix(`/web2ports-b`)
+      - traefik.http.routers.b-router.service=b-service
+      - traefik.http.services.b-service.loadbalancer.server.port=8002
