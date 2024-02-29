@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entryPoints.metrics.address=:8082"
+      - "--metrics.prometheus=true" # Expose metrics in Prometheus format on url: http://localhost:8082/metrics
+      - "--metrics.prometheus.entryPoint=metrics" # In default, it'll use the entryPoint `traefik` which use `8080` port.
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik dashboard
+      - "8082:8082"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus:/prometheus # Provide persistent storage for Prometheus's data 
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - traefik
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3100:3000"
+    environment: 
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_SIGNOUT_MENU: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    # volumes:
+      # - grafana:/var/lib/grafana # Provide persistent storage for Grafana's data 
+    depends_on:
+      - prometheus
+
+  foo:
+    image: traefik/whoami:v1.10
+    hostname: foo.com
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.foo.entrypoints=web
+      - traefik.http.routers.foo.rule=PathPrefix(`/foo`)
+
+volumes:
+  grafana:
+  prometheus:

@@ -1,0 +1,42 @@
+# [Monitoring Docker Containers with cAdvisor, Prometheus, and Grafana Using Docker Compose](https://medium.com/@varunjain2108/monitoring-docker-containers-with-cadvisor-prometheus-and-grafana-d101b4dbbc84)
+# [Docker monitoring](https://grafana.com/grafana/dashboards/193-docker-monitoring/)
+version: "3"
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yaml
+      - prometheus-storage:/prometheus    # Provide persistent storage for Prometheus's data 
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:10.2.4
+    environment:
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_SIGNOUT_MENU: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources   # Provide default datasources
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
+      # - grafana-storage:/var/lib/grafana    # Provide persistent storage for Grafana's data 
+    ports:
+      - "9100:3000"
+
+volumes:
+  prometheus-storage:
+  grafana-storage:

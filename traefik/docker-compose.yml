@@ -58,6 +58,7 @@ services:
       # Tell Traefik to use the port 12345 to connect to `myservice` service
       - traefik.http.services.bar12345-service.loadbalancer.server.port=12345
 
+  # Set up for two separate servers working in one container .
   web2ports:
     image: python:3.10
     ports:
