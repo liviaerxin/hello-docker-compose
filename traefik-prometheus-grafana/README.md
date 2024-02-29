@@ -1,1 +1,1 @@
-# Monitoring Traefik with Prometheus and Grafana
+# Monitoring Traefik metrics with Prometheus + Grafana
