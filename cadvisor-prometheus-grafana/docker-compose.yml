@@ -33,7 +33,7 @@ services:
     volumes:
       - ./grafana/datasources:/etc/grafana/provisioning/datasources   # Provide default datasources
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
-      # - grafana-storage:/var/lib/grafana    # Provide persistent storage for Grafana's data 
+      # - grafana-storage:/var/lib/grafana    # Provide persistent storage for Grafana's data, such as your added datasource and dashboard.
     ports:
       - "9100:3000"
 

@@ -1,7 +1,7 @@
 datasources:
   - name: Prometheus
     type: prometheus
-    uid: JOSE3g9KVz
+    uid: JOSE3g9KVz       # `uid` is used by dashboard
     access: proxy
     url: http://prometheus:9090
     isDefault: true
