@@ -8,9 +8,12 @@ The project is automated **provisioning** with `datasources` & `dashboards`:
 - The default `datasource` and `dashboard` can be restored after restarting, if you delete them accidentally.
 - Provisioning one `datasource` in `./datasources/datasource.yaml` file
 - Provisioning two `dashboard` with two `./dashboards/*.json` files that I use from others but do a little **tweak**. These awesome creations are:
-  - `17346_rev7.json`: Docker and system monitoring
-    - ID: 17346
+  - `17346_rev7.json`: Traefik Official Standalone Dashboard
+    - ID: `17346`
     - URL: https://grafana.com/grafana/dashboards/17346-traefik-official-standalone-dashboard/
+  - `12250_rev1.json`: Traefik 2.2
+    - ID: `12250`
+    - URL: https://grafana.com/grafana/dashboards/12250-traefik-2-2/
 
 However, I do some modification on `"datasource"` in these `dashboard.json` files for my `Prometheus` datsource.
 
@@ -24,6 +27,7 @@ If you want to use an existed `dashboard.json` which is downloaded from grafana 
 
 ## Example
 
-Traefik:    http://localhost:8082/metrics
-Prometheus: http://localhost:9090
-Grafana:    http://localhost:3000
+Traefik     :   http://localhost:8082/metrics
+Prometheus  :   http://localhost:9090
+Grafana     :   http://localhost:3000
+Web         :   http://localhost/foo
