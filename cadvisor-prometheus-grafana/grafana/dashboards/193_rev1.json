@@ -36,10 +36,12 @@
     }
   ],
   "id": null,
-  "title": "Docker monitoring",
+  "title": "Docker monitoring(cAdvisor/Prometheus)-193",
   "description": "Docker monitoring with Prometheus and cAdvisor",
   "tags": [
-    "docker"
+    "Docker",
+    "cAdvisor",
+    "Prometheus"
   ],
   "style": "dark",
   "timezone": "browser",
@@ -62,9 +64,9 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "editable": true,
           "error": false,
           "format": "none",
@@ -146,9 +148,9 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "editable": true,
           "error": false,
           "format": "mbytes",
@@ -230,9 +232,9 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "editable": true,
           "error": false,
           "format": "percent",
@@ -316,9 +318,9 @@
           "aliasColors": {},
           "bars": false,
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "decimals": 2,
           "editable": true,
           "error": false,
@@ -409,9 +411,9 @@
           "aliasColors": {},
           "bars": false,
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "decimals": 2,
           "editable": true,
           "error": false,
@@ -503,9 +505,9 @@
           "aliasColors": {},
           "bars": false,
           "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+            "type": "prometheus",
+            "uid": "c1d0d42c"
+          },
           "editable": true,
           "error": false,
           "fill": 1,
@@ -583,10 +585,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": {
-              "type": "prometheus",
-              "uid": "JOSE3g9KVz"
-            },,
+          "datasource": {},
           "editable": true,
           "error": false,
           "fill": 1,

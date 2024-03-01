@@ -1,41 +1,63 @@
-# [Monitoring Docker Containers with cAdvisor, Prometheus, and Grafana Using Docker Compose](https://medium.com/@varunjain2108/monitoring-docker-containers-with-cadvisor-prometheus-and-grafana-d101b4dbbc84)
-# [Docker monitoring](https://grafana.com/grafana/dashboards/193-docker-monitoring/)
 version: "3"
 
 services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
+    privileged: true
     volumes:
       - "/:/rootfs:ro"
       - "/var/run:/var/run:ro"
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
       - "/dev/disk/:/dev/disk:ro"
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
     ports:
       - "8080:8080"
+
+  # node-exporter:
+  #   image: quay.io/prometheus/node-exporter:v1.7.0
+  #   volumes:
+  #     - "/proc:/host/proc:ro"
+  #     - "/sys:/host/sys:ro"
+  #     - "/:/rootfs:ro"
+  #     - "/:/host:ro,rslave"
+  #   command: 
+  #     - "--path.rootfs=/host"
+  #     - "--path.procfs=/host/proc"
+  #     - "--path.sysfs=/host/sys"
+  #     - "--collector.filesystem.ignored-mount-points"
+  #     - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+  #   ports:
+  #     - 9100:9100
 
   prometheus:
     image: prom/prometheus:v2.50.1
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yaml
-      - prometheus-storage:/prometheus    # Provide persistent storage for Prometheus's data 
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      # - "prometheus-storage:/prometheus"    # Provide persistent storage for Prometheus's data 
     ports:
       - "9090:9090"
+    depends_on:
+      - cadvisor
 
   grafana:
     image: grafana/grafana:10.2.4
     environment:
-      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
-      GF_AUTH_DISABLE_SIGNOUT_MENU: "true"
-      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      # Disable auth
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin      # Role for unauthenticated users, valid values are `Admin`, `Editor` and `Viewer`
+      - GF_AUTH_DISABLE_SIGNOUT_MENU=true     # Hide UI for signout
+      - GF_AUTH_DISABLE_LOGIN_FORM=true       # Hide UI for login
     volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources   # Provide default datasources
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
+      - "./grafana/datasources:/etc/grafana/provisioning/datasources"   # Provide default datasources
+      - "./grafana/dashboards:/etc/grafana/provisioning/dashboards"     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
       # - grafana-storage:/var/lib/grafana    # Provide persistent storage for Grafana's data, such as your added datasource and dashboard.
     ports:
-      - "9100:3000"
+      - "3000:3000"
+    depends_on:
+      - prometheus
 
 volumes:
   prometheus-storage:

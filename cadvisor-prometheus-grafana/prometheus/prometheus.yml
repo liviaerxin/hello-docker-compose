@@ -3,7 +3,21 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: "cadvisor"  # Pull the metrics from datasource: http://cadvisor:8080/metrics
-    metrics_path: "/metrics"
+  - job_name: "prometheus"
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "cadvisor" # Pull the metrics from datasource: http://cadvisor:8080/metrics
+    # metrics_path: "/metrics" # The default metrics_path is "/metrics"
+    # scheme: "http"  # scheme defaults to 'http'.
     static_configs:
       - targets: ["cadvisor:8080"]
+
+  # - job_name: "node-exporter"
+  #   # Override the global default and scrape targets from this job every 5 seconds.
+  #   scrape_interval: 15s
+
+  #   static_configs:
+  #     - targets: ["node-exporter:9100"]
