@@ -8,8 +8,8 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--metrics.prometheus=true" # Expose metrics in Prometheus format on url: http://localhost:8080/metrics
-      # - "--entryPoints.metrics.address=:8082" # Expose metrics in Prometheus format on url: http://localhost:8082/metrics
+      - "--metrics.prometheus=true" # Enable traefik metrics in Prometheus format on URL: http://localhost:8080/metrics
+      # - "--entryPoints.metrics.address=:8082" # Expose metrics in Prometheus format on URL: http://localhost:8082/metrics
       # - "--metrics.prometheus.entryPoint=metrics" # In default, it'll use the default entryPoint `traefik` which use `8080` port.
       - "--metrics.prometheus.addEntryPointsLabels=true"
       - "--metrics.prometheus.addrouterslabels=true"
@@ -40,6 +40,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin      # Role for unauthenticated users, valid values are `Admin`, `Editor` and `Viewer`
       - GF_AUTH_DISABLE_SIGNOUT_MENU=true     # Hide UI for signout
       - GF_AUTH_DISABLE_LOGIN_FORM=true       # Hide UI for login
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel # Tell Grafana to load `grafana-piechart-panel` plugin
     volumes:
       - "./grafana/datasources:/etc/grafana/provisioning/datasources"   # Provide default datasources
       - "./grafana/dashboards:/etc/grafana/provisioning/dashboards"     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
