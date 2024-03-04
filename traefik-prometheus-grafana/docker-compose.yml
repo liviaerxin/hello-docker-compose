@@ -40,7 +40,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin      # Role for unauthenticated users, valid values are `Admin`, `Editor` and `Viewer`
       - GF_AUTH_DISABLE_SIGNOUT_MENU=true     # Hide UI for signout
       - GF_AUTH_DISABLE_LOGIN_FORM=true       # Hide UI for login
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel # Tell Grafana to load `grafana-piechart-panel` plugin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel # Tell Grafana to load `grafana-piechart-panel` plugin, that dashboard `Traefik 2.2` uses.
     volumes:
       - "./grafana/datasources:/etc/grafana/provisioning/datasources"   # Provide default datasources
       - "./grafana/dashboards:/etc/grafana/provisioning/dashboards"     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
