@@ -1,0 +1,83 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      # - "--metrics.prometheus=true" # Enable traefik metrics in Prometheus format on URL: http://localhost:8080/metrics
+      # # - "--entryPoints.metrics.address=:8082" # Expose metrics in Prometheus format on URL: http://localhost:8082/metrics
+      # # - "--metrics.prometheus.entryPoint=metrics" # In default, it'll use the default entryPoint `traefik` which use `8080` port.
+      # - "--metrics.prometheus.addEntryPointsLabels=true"
+      # - "--metrics.prometheus.addrouterslabels=true"
+      # - "--metrics.prometheus.addServicesLabels=true"
+      - "--accesslog=true"                                  #  Enable the access log
+      - "--accesslog.filePath=/var/log/traefik/access.log" # Write the access log to the file
+      - "--accesslog.bufferingSize=100"                     # Configure a buffer of 100 lines
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik dashboard
+      # - "8082:8082"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./storages/log/traefik:/var/log/traefik"
+
+  promtail:
+    image: grafana/promtail:2.9.5
+    volumes:
+      - "./promtail/promtail.yml:/etc/promtail/config.yml:ro"
+      - "./storages/log/traefik:/var/log/traefik"
+    command: "-config.file=/etc/promtail/config.yml"
+
+  loki:
+    image: grafana/loki:2.9.5
+    volumes:
+      - "./loki/loki.yml:/etc/loki/config.yml:ro"
+    ports:
+      - "3100:3100"
+    command: "-config.file=/etc/loki/config.yml"
+    depends_on:
+      - promtail
+
+  # prometheus:
+  #   image: prom/prometheus:v2.50.1
+  #   volumes:
+  #     - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+  #     # - "prometheus-storage:/prometheus"    # Provide persistent storage for Prometheus's data 
+  #   ports:
+  #     - "9090:9090"
+  #   depends_on:
+  #     - traefik
+
+  grafana:
+    image: grafana/grafana:10.2.4
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      # Disable auth
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin      # Role for unauthenticated users, valid values are `Admin`, `Editor` and `Viewer`
+      - GF_AUTH_DISABLE_SIGNOUT_MENU=true     # Hide UI for signout
+      - GF_AUTH_DISABLE_LOGIN_FORM=true       # Hide UI for login
+    volumes:
+      - "./grafana/datasources:/etc/grafana/provisioning/datasources"   # Provide default datasources
+      - "./grafana/dashboards:/etc/grafana/provisioning/dashboards"     # Provide default dashboards. You can also import dashboards from UI then persist it in `grafana-storage`.
+      # - grafana-storage:/var/lib/grafana    # Provide persistent storage for Grafana's data, such as your added datasource and dashboard.
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+
+  # foo:
+  #   image: traefik/whoami:v1.10
+  #   hostname: foo.com
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.foo.entrypoints=web
+  #     - traefik.http.routers.foo.rule=PathPrefix(`/foo`)
+
+volumes:
+  grafana-storage:
+  prometheus-storage:
