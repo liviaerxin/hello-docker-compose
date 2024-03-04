@@ -1,5 +1,13 @@
 # Monitor Docker Containers with cAdvisor + Prometheus + Grafana
 
+A docker compose example has been designed specifically to monitor Docker containers **metrics**.
+
+```mermaid 
+graph LR;
+    A[Docker Container] -->|pull metrics| B[Prometheus]
+    B -->|pull data| C[Grafana]
+```
+
 The project is automated **provisioning** with `datasources` & `dashboards`:
 
 - Facilitate DevOps, reducing chores that you have to visit  **Grafana** Web UI to configure `datasource` and import `dashboard` every time setting up a new infrastructure.

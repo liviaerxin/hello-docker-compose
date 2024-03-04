@@ -1,6 +1,12 @@
 # Monitoring Traefik metrics with Prometheus + Grafana
 
-Traefik monitor, extending on [Monitor Docker Containers with cAdvisor + Prometheus + Grafana](../cadvisor-prometheus-grafana/README.md)
+A docker compose example, which extends from [Monitor Docker Containers with cAdvisor + Prometheus + Grafana](../cadvisor-prometheus-grafana/README.md), has been designed specifically to monitor Traefik **metrics**.
+
+```mermaid 
+graph LR;
+    A[Traefik] -->|pull metrics| B[Prometheus]
+    B -->|pull data| C[Grafana]
+```
 
 The project is automated **provisioning** with `datasources` & `dashboards`:
 
@@ -15,15 +21,15 @@ The project is automated **provisioning** with `datasources` & `dashboards`:
     - ID: `12250`
     - URL: https://grafana.com/grafana/dashboards/12250-traefik-2-2/
 
-However, I do some modification on `"datasource"` in these `dashboard.json` files for my `Prometheus` datsource.
+However, I do some modification on `"datasource"` in these `dashboard.json` files for my `Prometheus` datasource.
 
 ## Set `datasource` in `dashboard.json` when provisioning
 
-If you want to use an existed `dashboard.json` which is downloaded from grafana dashboard center, it maybe show `{..., "datasource": {"uid": ${DS_PROMETHEUS}}}`. We need to provide a right `datasource` by doing either of the following:
+If you are using an existed `dashboard.json` which is downloaded from grafana dashboard center, it maybe show `{..., "datasource": {"uid": ${DS_PROMETHEUS}}}`. We need to replace it with a right `datasource` by doing either of the following:
 
-- Set `{"datasource":null}`: means dashboard will use the default datasource.
-- Set `{"datasource":"Prometheus"}`: means dashboard will use the datasource of name `Prometheus`.
-- Set `{"datasource": {"type": "prometheus", "uid": "c1d0d42c"}}`: means dashboard will use the datasource of uid `c1d0d42c`.
+- Set `{"datasource":null}`: means dashboard will use the `default` datasource.
+- Set `{"datasource":"Prometheus"}`: means dashboard will use the datasource of **name**: `Prometheus`.
+- Set `{"datasource": {"type": "prometheus", "uid": "c1d0d42c"}}`: means dashboard will use the datasource of **uid**: `c1d0d42c`.
 
 ## Example
 
@@ -31,3 +37,7 @@ Traefik     :   http://localhost:8082/metrics
 Prometheus  :   http://localhost:9090
 Grafana     :   http://localhost:3000
 Web         :   http://localhost/foo
+
+
+## References
+
