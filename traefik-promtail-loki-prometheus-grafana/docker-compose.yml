@@ -8,12 +8,19 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--metrics.prometheus=true" # Enable traefik metrics in Prometheus format on URL: http://localhost:8080/metrics
+      # # - "--entryPoints.metrics.address=:8082" # Expose metrics in Prometheus format on URL: http://localhost:8082/metrics
+      # # - "--metrics.prometheus.entryPoint=metrics" # In default, it'll use the default entryPoint `traefik` which use `8080` port.
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
       - "--accesslog=true"                                  #  Enable the access log
       - "--accesslog.filePath=/var/log/traefik/access.log" # Write the access log to the file
       - "--accesslog.bufferingSize=100"                     # Configure a buffer of 100 lines
     ports:
       - "80:80"
       - "8080:8080" # Traefik dashboard
+      # - "8082:8082"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./storages/log/traefik:/var/log/traefik"
@@ -26,7 +33,7 @@ services:
     command: "-config.file=/etc/promtail/config.yml"
     depends_on:
       - traefik
-      
+
   loki:
     image: grafana/loki:2.9.5
     volumes:
@@ -36,6 +43,16 @@ services:
     command: "-config.file=/etc/loki/config.yml"
     depends_on:
       - promtail
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      # - "prometheus-storage:/prometheus"    # Provide persistent storage for Prometheus's data 
+    ports:
+      - "9090:9090"
+    depends_on:
+      - traefik
 
   grafana:
     image: grafana/grafana:10.2.4

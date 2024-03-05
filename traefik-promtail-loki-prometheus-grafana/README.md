@@ -1,11 +1,14 @@
-# Monitoring Traefik metrics with Prometheus + Grafana
+# Monitoring Traefik HTTP Logs with Promtail + Grafana Loki + Grafana
 
-A docker compose example, which extends from [Monitor Docker Containers with cAdvisor + Prometheus + Grafana](../cadvisor-prometheus-grafana/README.md), has been designed specifically to monitor Traefik **metrics**.
+A docker compose example, which extends from [Monitoring Traefik metrics with Prometheus + Grafana](../traefik-prometheus-grafana/README.md) and [Monitoring Traefik HTTP Logs with Promtail + Grafana Loki + Grafana](../traefik-promtail-loki-grafana/README.md), has been designed specifically to monitor Traefik **metrics** and **logs**.
 
 ```mermaid 
 graph LR;
-    A[Traefik] -->|pull metrics| B[Prometheus]
-    B -->|pull data| C[Grafana]
+    Traefik     -->|pull metrics| Prometheus
+    Prometheus  -->|pull data| Grafana
+    Traefik     -->|tail log file| Promtail
+    Promtail    -->|push data| Loki[Grafana Loki]
+    Loki        -->|pull data| Grafana
 ```
 
 The project is automated **provisioning** with `datasources` & `dashboards`:
@@ -14,14 +17,12 @@ The project is automated **provisioning** with `datasources` & `dashboards`:
 - The default `datasource` and `dashboard` can be restored after restarting, if you delete them accidentally.
 - Provisioning one `datasource` in `./datasources/datasource.yaml` file
 - Provisioning two `dashboard` with two `./dashboards/*.json` files that I use from others but do a little **tweak**. These awesome creations are:
-  - `17346_rev7.json`: Traefik Official Standalone Dashboard
+  - `17346_rev7_access_log.json`: I take the json file from:  
+    - `17346_rev7.json`: Traefik Official Standalone Dashboard
     - ID: `17346`
     - URL: https://grafana.com/grafana/dashboards/17346-traefik-official-standalone-dashboard/
-  - `12250_rev1.json`: Traefik 2.2
-    - ID: `12250`
-    - URL: https://grafana.com/grafana/dashboards/12250-traefik-2-2/
 
-However, I do some modification on `"datasource"` in these `dashboard.json` files for my `Prometheus` datasource.
+However, I do some modification on `"datasource"` in these `dashboard.json` files for `Prometheus` datasource and `Loki` datasource.
 
 ## Set `datasource` in `dashboard.json` when provisioning
 
@@ -34,10 +35,12 @@ If you are using an existed `dashboard.json` which is downloaded from grafana da
 ## Example
 
 Traefik     :   http://localhost:8080/metrics
-Prometheus  :   http://localhost:9090
+Loki        :   http://localhost:3100  and [Grafana Loki HTTP API](https://grafana.com/docs/loki/latest/reference/api/)
 Grafana     :   http://localhost:3000
+Prometheus  :   http://localhost:9090
 Web         :   http://localhost/foo
-
 
 ## References
 
+
+[Visualizing Traefik Metrics and HTTP Logs in Grafana](https://blog.lrvt.de/traefik-metrics-and-http-logs-in-grafana/)

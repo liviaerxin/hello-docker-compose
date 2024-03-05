@@ -1,0 +1,39 @@
+# Configuration file version
+apiVersion: 1
+
+# List of data sources to delete from the database before adding or updating those in the `datasources` list
+deleteDatasources:
+  - name: Loki
+    orgId: 1
+  - name: Prometheus
+    orgId: 1
+
+# List of data sources to insert/update depending on what's
+# available in the database.
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    # Defaults to orgId 1. 
+    # And Only orgId 1 has been created after initializing grafana.
+    # If you want to automatically create `new` orgId, consider using Grafana API.
+    orgId: 1
+    uid: 81c28c23
+    url: http://loki:3100
+    # <bool> Toggles whether the data source is pre-selected
+    # for new panels. You can set only one default
+    # data source per organization.
+    isDefault: false
+    version: 1
+    editable: false
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    # Defaults to orgId 1. 
+    # And Only orgId 1 has been created after initializing grafana.
+    # If you want to automatically create `new` orgId, consider using Grafana API.    orgId: 1
+    uid: 784fab76
+    url: http://prometheus:9090
+    isDefault: true
+    version: 1
+    editable: false
