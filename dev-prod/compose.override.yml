@@ -1,0 +1,23 @@
+services:
+  web:
+    build: !override  # [replace-value](https://docs.docker.com/compose/compose-file/13-merge/#replace-value)
+      context: ./webapp
+      dockerfile: Dockerfile.dev
+    working_dir:
+      /app
+    volumes:
+      - './webapp:/app'
+    ports:
+      - 8000:8000
+    environment:
+      DEBUG: 'true'
+    command: uvicorn server:app --host 0.0.0.0 --reload
+  
+  db:
+    command: '-d'
+    ports:
+     - 5432:5432
+
+  cache:
+    ports:
+      - 6379:6379

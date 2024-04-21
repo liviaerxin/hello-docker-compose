@@ -1,0 +1,17 @@
+services:
+  web:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    ports:
+      - 80:8000
+    environment:
+      PRODUCTION: 'true'
+
+  db:
+    environment:
+      POSTGRES_PASSWORD: '123456'
+
+  cache:
+    environment:
+      TTL: '500'
