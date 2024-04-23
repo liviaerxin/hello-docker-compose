@@ -1,7 +1,0 @@
-services:
-  web:  
-    build:
-      context: ./webapp
-      dockerfile: Dockerfile
-      tags:
-        - name=value

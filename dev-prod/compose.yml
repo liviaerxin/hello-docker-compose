@@ -2,7 +2,10 @@ version: "3"
 
 services:
   web:
-    image: webapp:${TAG}
+    image: webapp:${TAG:-dev}
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
     depends_on:
       - db
       - cache

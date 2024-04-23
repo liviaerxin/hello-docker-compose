@@ -2,7 +2,7 @@
 
 If you want to deploy your **Docker Compose** application (locally in development) on a single server (remotely) for production, you can work with the multiple Compose fils to achieve.
 
-A common workflow for deploying an container-orchestrated application from development to production is like:
+A common **workflow** for deploying an container-orchestrated application from development to production is like:
 
 1. Build the Docker production-ready images for each service.
     - Like `Dockerfile.dev` for **development**, `Dockerfile` for **production**
@@ -30,15 +30,27 @@ A common workflow for deploying an container-orchestrated application from devel
         - Log aggregator
         - Performance Monitor
 
-## Getting Started
-
-### For Development
+## Local Development
 
 ```sh
 docker compose up
 ```
 
-### For Production
+This equals the following:
+
+```sh
+docker compose --env-file .env -f compose.yml -f compose.override.yml up
+```
+
+## Deploy For Production
+
+1. Build production-release images in local or CI/CD
+
+```sh
+docker compose --env-file .env.prod -f compose.yml build
+```
+
+2. Run on your remote production server
 
 ```sh
 docker compose --env-file .env.prod -f compose.yml -f compose.prod.yml up
