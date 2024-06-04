@@ -11,7 +11,8 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: db # Created database
+      # POSTGRES_DB: db # Created database
+      POSTGRES_MULTIPLE_DATABASES: db,db_auth,db_test # Created multiple databases
 
   adminer:
     image: adminer:4.8.1
