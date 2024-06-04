@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.insecure=true"     # Enables the web UI 
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--accesslog=true"
+      - "--providers.file.directory=/dynamic_config/"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080   # The Web UI (enabled by --api.insecure=true)
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./config:/dynamic_config:ro"
+      - "./certs:/certs:ro"
+    labels:
+      - "traefik.enable=true"
+
+  app-a:
+    image: containous/whoami:v1.3.0
+    hostname: a.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-a.entrypoints=websecure"
+      - "traefik.http.routers.app-a.rule=Host(`a.localhost`)"
+      - "traefik.http.routers.app-a.tls=true"
+
+  app-b:
+    image: containous/whoami:v1.3.0
+    hostname: b.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-b.entrypoints=websecure"
+      - "traefik.http.routers.app-b.rule=Host(`b.localhost`)"
+      - "traefik.http.routers.app-b.tls=true"

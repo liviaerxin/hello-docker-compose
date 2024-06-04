@@ -1,0 +1,15 @@
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/a.localhost.crt
+        keyFile: /certs/a.localhost.key
+  certificates:
+    - certFile: /certs/a.localhost.crt
+      keyFile: /certs/a.localhost.key
+      stores:
+        - default
+    - certFile: /certs/b.localhost.crt
+      keyFile: /certs/b.localhost.key
+      stores:
+        - default
