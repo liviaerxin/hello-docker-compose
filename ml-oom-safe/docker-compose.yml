@@ -1,0 +1,12 @@
+version: "3"
+services:
+  inference-server:
+    build: ./inference-server
+    restart: always
+    ports:
+      - "8088:8088"
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
