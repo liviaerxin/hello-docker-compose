@@ -8,6 +8,8 @@ It makes the model development more efficient as:
 2. Remote MLflow tracking server are not accessible or bad network
 3. security issues.
 
+> Note: For Remote tracking MLflow server, we can `minio` to mock `s3` - it must use `S3 / MinIO / GCS / Azure Blob` not to local disk filesystem, because the clients can not upload/download models by the remote server local filepath.
+
 ## Overview
 
 1. Train ML models locally, log runs and metrics to local filesystem, and register trained models to a remote MLflow server.
