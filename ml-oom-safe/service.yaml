@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: inference-server
+  name: inference-server
+spec:
+  ports:
+  - name: "8088"
+    port: 8088 # Service port (inside the cluster)
+    targetPort: 8088 # Container port
+  selector:
+    io.kompose.service: inference-server
