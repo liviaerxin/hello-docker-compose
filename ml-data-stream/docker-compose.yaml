@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"  # Redis Port
+
+  ml-worker:
+    build: ./ml-worker
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+    volumes:
+      - ./ml-worker:/app
+    command: python3 -u ml_worker.py
+
+  data-streamer:
+    build: ./data-streamer
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    volumes:
+      - ./data-streamer:/app
+    command: python3 data_streamer.py
+
+  # lighting-control:
+  #   build: ./lighting-control
+  #   container_name: lighting-control
+  #   depends_on:
+  #     - ml-worker
+  #     - redis
+  #   command: python3 lighting_control.py
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - 8001:8001 # RedisInsight
